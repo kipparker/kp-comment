@@ -10,6 +10,6 @@ class CommentListResponse(messages.Message):
     """ProtoRPC message definition to represent a list of stored scores."""
     items = messages.MessageField(CommentResponseMessage, 1, repeated=True)
 
-class CommentAddMessage(messages.Message):
+class CommentRequestMessage(messages.Message):
     """incoming content"""
     content = messages.StringField(1)
