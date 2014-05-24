@@ -8,7 +8,18 @@ from comment_api_messages import CommentResponseMessage, CommentListResponse, Co
 from google.appengine.api import search
 from google.appengine.ext import ndb
 
-@endpoints.api(name='comments', version='v1', description="Comments API")
+WEB_CLIENT_ID = '526127305693-d0r6fc60sc58olunmh71upmaudk4errm.apps.googleusercontent.com'
+ANDROID_AUDIENCE = WEB_CLIENT_ID
+
+@endpoints.api(
+    name='comments',
+    version='v1',
+    description="Comments API",
+    allowed_client_ids=[WEB_CLIENT_ID, endpoints.API_EXPLORER_CLIENT_ID],
+    audiences=[ANDROID_AUDIENCE],
+    scopes=[endpoints.EMAIL_SCOPE],
+    auth_level=endpoints.AUTH_LEVEL.REQUIRED
+)
 class CommentApi(remote.Service):
     @endpoints.method(CommentRequestMessage, CommentListResponse,
                       path='comment/search', http_method='GET',
@@ -21,7 +32,7 @@ class CommentApi(remote.Service):
         Returns:
             An instance of CommentListResponse.
         """
-        term = request.content
+        term = request.content or ""
         comment_search = search.Index(SEARCH_INDEX).search(term)
         comment_keys = [ndb.Key(Comment, int(x.doc_id)) for x in comment_search.results]
         q = Comment.query().filter(Comment._key.IN(comment_keys))
